@@ -2,7 +2,7 @@
 
 These are the Docker Compose files behind my video comparing three local Qwen3.8 checkpoints in 10 tests on one NVIDIA RTX PRO 6000 Blackwell (96 GB). Every file here is the exact launch the tests ran on.
 
-- Video: ****
+- Video: **https://www.youtube.com/watch?v=VOtfja_Toj4**
 - Channel: [Lukasz Gawenda AI](https://www.youtube.com/@LukaszGawendaAI)
 
 ## The configs

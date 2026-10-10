@@ -1,13 +1,17 @@
 # RadixArk/Qwen3.8-Flash-Next-NVFP4 on the RELEASED lmsysorg/sglang:v0.5.20 image.
 #
+# First start downloads the weights from Hugging Face at the measured revisions into
+# $HF_HOME (default ~/.cache/huggingface); a gated model needs HF_TOKEN set. Then:
+#   docker compose up -d && docker compose logs -f
+#
 # Used for the tool-use test (BFCL), so Flash-Next ran it on the same engine release as the
-# two 27B models. It is qwen38-flash-next-nvfp4.sglang.yaml with two mechanical changes:
+# two 27B models. It is compose.yaml with two mechanical changes:
 #   image   lmsysorg/sglang:dev-qwen38-next-local -> lmsysorg/sglang:v0.5.20
 #   --tp    -> --tp-size   (0.5.20 renamed it; --tp dies on the argument parser)
 # Everything else is identical; read that file's header for why each value is what it is.
 # Not speed-measured on this image.
 #
-#   docker compose -f docker/qwen38-flash-next-nvfp4.sglang-v0520.yaml up -d
+#   docker compose -f compose.v0520.yaml up -d
 name: best_sglang_official_v0520_qwen38_flash_next
 
 services:
@@ -39,6 +43,8 @@ services:
         hard: 1048576
 
     environment:
+      HF_HOME: /hf
+      HF_TOKEN: ${HF_TOKEN:-}
       CUDA_VISIBLE_DEVICES: "0"
       PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True
       SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK: "1"
@@ -50,13 +56,15 @@ services:
       - type: bind
         source: ${HF_HOME:-${HOME}/.cache/huggingface}
         target: /hf
-        read_only: true
+        read_only: false
 
     entrypoint: ["sglang"]
     command:
       - serve
       - --model-path
-      - /hf/hub/models--RadixArk--Qwen3.8-Flash-Next-NVFP4/snapshots/7b719225242aacd3dbd3f9407468c2ee9a9d2594
+      - RadixArk/Qwen3.8-Flash-Next-NVFP4
+      - --revision
+      - 7b719225242aacd3dbd3f9407468c2ee9a9d2594
       - --served-model-name
       - Qwen3.8-Flash-Next
       - --host
@@ -119,7 +127,7 @@ services:
       retries: 40
       # Measured boot: load_weight 102 s + scheduler, healthy at ~2.5 min.
       # First boot on a cold JIT cache is longer.
-      start_period: 300s
+      start_period: 3600s
 
     # An OOM or a startup error must stay stopped, never become a restart loop.
     restart: "no"

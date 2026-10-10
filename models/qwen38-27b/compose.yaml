@@ -1,19 +1,20 @@
-# orcarouter/Qwen3.8-27B-Uncensored-NVFP4 on SGLang v0.5.20 with the DFlash2 drafter.
+# RadixArk/Qwen3.8-27B-NVFP4 on SGLang v0.5.20 with the DFlash2 drafter.
 #
-# The exact launch every orcarouter/Qwen3.8-27B-Uncensored-NVFP4 test in the video ran on,
-# and its speed arm. Identical to qwen38-27b-nvfp4.sglang.yaml except the checkpoint, the
-# served name and the quantization. No variables were overridden, so every
+# First start downloads the weights from Hugging Face at the measured revisions into
+# $HF_HOME (default ~/.cache/huggingface); a gated model needs HF_TOKEN set. Then:
+#   docker compose up -d && docker compose logs -f
+#
+# The exact launch every RadixArk/Qwen3.8-27B-NVFP4 test in the video ran on: tool use,
+# needle, battle arena, SVG, video editing, voxel, design, Rube Goldberg and CAPTCHA, and
+# the speed arm "SGLang, RadixArk NVFP4, DFlash2". No variables were overridden, so every
 # ${VAR:-default} below ran at its default.
 #
-#   checkpoint  orcarouter/Qwen3.8-27B-Uncensored-NVFP4 @ 96d4d0b66d94314909d1af73f955e94bf68335ac (gated)
+#   checkpoint  RadixArk/Qwen3.8-27B-NVFP4      @ 319f741cce68d7914884900c138a1fbb70a42f30
 #   drafter     incoai/Qwen3.8-27B-DFlash2      @ 015e795645c74b1a0eeef3b570031fb62e769bc5 (BF16)
 #   window      262,144 tokens, 4 slots, fp8 KV cache
-#   quant       compressed-tensors (its own NVFP4 export), not modelopt_fp4
 #
-# Download both at those revisions first (see README). The compose runs offline and points
-# at the snapshot folders by hash; if yours differ, edit the two paths below.
-#
-#   docker compose -f docker/qwen38-27b-uncensored-nvfp4.sglang.yaml up -d
+# --mamba-full-memory-ratio 9.94 is computed for this card, 4 slots and 8 draft tokens; the
+# cookbook's published values assume a different workload.
 name: sglang_qwen38_27b
 services:
   sglang:
@@ -34,22 +35,24 @@ services:
         soft: 1048576
         hard: 1048576
     environment:
+      HF_HOME: /hf
+      HF_TOKEN: ${HF_TOKEN:-}
       CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES:-0}
-      HF_HUB_OFFLINE: '1'
-      TRANSFORMERS_OFFLINE: '1'
     volumes:
     - type: bind
       source: ${HF_HOME:-${HOME}/.cache/huggingface}
       target: /hf
-      read_only: true
+      read_only: false
     command:
     - python3
     - -m
     - sglang.launch_server
     - --model-path
-    - /hf/hub/models--orcarouter--Qwen3.8-27B-Uncensored-NVFP4/snapshots/96d4d0b66d94314909d1af73f955e94bf68335ac
+    - RadixArk/Qwen3.8-27B-NVFP4
+    - --revision
+    - 319f741cce68d7914884900c138a1fbb70a42f30
     - --served-model-name
-    - Qwen3.8-27B-Uncensored
+    - Qwen3.8-27B
     - --host
     - 0.0.0.0
     - --port
@@ -57,7 +60,7 @@ services:
     - --tp-size
     - '1'
     - --quantization
-    - compressed-tensors
+    - modelopt_fp4
     - --kv-cache-dtype
     - ${KV_CACHE_DTYPE:-fp8_e4m3}
     - --attention-backend
@@ -87,7 +90,9 @@ services:
     - --speculative-algorithm
     - DFLASH
     - --speculative-draft-model-path
-    - /hf/hub/models--incoai--Qwen3.8-27B-DFlash2/snapshots/015e795645c74b1a0eeef3b570031fb62e769bc5
+    - incoai/Qwen3.8-27B-DFlash2
+    - --speculative-draft-model-revision
+    - 015e795645c74b1a0eeef3b570031fb62e769bc5
     - --speculative-num-draft-tokens
     - '8'
     - --speculative-draft-model-quantization
@@ -101,5 +106,5 @@ services:
       interval: 15s
       timeout: 5s
       retries: 60
-      start_period: 300s
+      start_period: 3600s
     restart: 'no'

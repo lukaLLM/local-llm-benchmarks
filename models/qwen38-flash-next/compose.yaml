@@ -1,11 +1,12 @@
 # RadixArk/Qwen3.8-Flash-Next-NVFP4 on the official SGLang image, built-in MTP (NEXTN) drafter.
 #
+# First start downloads the weights from Hugging Face at the measured revisions into
+# $HF_HOME (default ~/.cache/huggingface); a gated model needs HF_TOKEN set. Then:
+#   docker compose up -d && docker compose logs -f
+#
 # The launch every Qwen3.8-Flash-Next test in the video ran on except tool use (BFCL), which
 # used the v0.5.20 file next to this one. Speed: 22.4 s to first token for a ~254K-token
 # prompt in the full 262,144 window, measured 2026-09-12 at a 600 W GPU power cap.
-#
-#   docker pull lmsysorg/sglang:dev-qwen38-next-local
-#   docker compose -f docker/qwen38-flash-next-nvfp4.sglang.yaml up -d
 #
 # Pin the digest if you want the exact measured image:
 #   lmsysorg/sglang@sha256:9d2a843c706c74bc259c0d9abf360551eb2734e1e7d255ab012a6965f10480b6
@@ -25,10 +26,6 @@
 # MEMORY. The 47.68 GiB per-layer embedding (PLE) table is pinned in host RAM. Container
 # memory peaked at 86.0 GiB, exactly the cap below; host free RAM fell to 14 GB on a 91 GiB
 # box. The cookbook asks for >= 64 GB free host RAM. Run nothing else large next to it.
-#
-# If the model path below does not exist, the checkpoint was re-uploaded and the snapshot
-# hash moved. Find yours and edit it:
-#   ls -d ~/.cache/huggingface/hub/models--RadixArk--Qwen3.8-Flash-Next-NVFP4/snapshots/*/
 name: best_sglang_official_qwen38_flash_next
 
 services:
@@ -60,6 +57,8 @@ services:
         hard: 1048576
 
     environment:
+      HF_HOME: /hf
+      HF_TOKEN: ${HF_TOKEN:-}
       CUDA_VISIBLE_DEVICES: "0"
       PYTORCH_CUDA_ALLOC_CONF: expandable_segments:True
       SGLANG_OPT_MAMBA_SKIP_DECODE_LOCK: "1"
@@ -71,13 +70,15 @@ services:
       - type: bind
         source: ${HF_HOME:-${HOME}/.cache/huggingface}
         target: /hf
-        read_only: true
+        read_only: false
 
     entrypoint: ["sglang"]
     command:
       - serve
       - --model-path
-      - /hf/hub/models--RadixArk--Qwen3.8-Flash-Next-NVFP4/snapshots/7b719225242aacd3dbd3f9407468c2ee9a9d2594
+      - RadixArk/Qwen3.8-Flash-Next-NVFP4
+      - --revision
+      - 7b719225242aacd3dbd3f9407468c2ee9a9d2594
       - --served-model-name
       - Qwen3.8-Flash-Next
       - --host
@@ -118,7 +119,7 @@ services:
       - --mamba-ssm-dtype
       - bfloat16
       - --mem-fraction-static
-      - "0.96"
+      - ${SGLANG_MEM_FRACTION_STATIC:-0.96}    # 0.93 for the image tests: SGLANG_MEM_FRACTION_STATIC=0.93 docker compose up -d
       - --cuda-graph-max-bs-decode
       - "1"
       # The PLE table in pinned host RAM. This is the line that costs the memory.
@@ -140,7 +141,7 @@ services:
       retries: 40
       # Measured boot: load_weight 102 s + scheduler, healthy at ~2.5 min.
       # First boot on a cold JIT cache is longer.
-      start_period: 300s
+      start_period: 3600s
 
     # An OOM or a startup error must stay stopped, never become a restart loop.
     restart: "no"

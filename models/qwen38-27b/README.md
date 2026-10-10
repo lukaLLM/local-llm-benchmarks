@@ -1,11 +1,11 @@
 # RadixArk/Qwen3.8-27B-NVFP4
 
-▶ **Video: [58% Less Thinking? Swift 1.5 vs Qwen 3.8 27B in 10 Real Tests! (coming soon)](https://www.youtube.com/@LukaszGawendaAI)**  
+▶ **Video: [58% Less Thinking? Swift 1.5 vs Qwen 3.8 27B in 10 Real Tests!](https://www.youtube.com/watch?v=9WOEjWC9zYs)**  
 ▶ **Video: [Which Qwen 3.8 Should You Run? 27B vs Flash Next vs Uncensored in 10 Real Tests!](https://youtu.be/VOtfja_Toj4)**  
 
 RadixArk/Qwen3.8-27B-NVFP4 on SGLang v0.5.20 with the DFlash2 drafter.
 
-## Scorecard: 58% Less Thinking? Swift 1.5 vs Qwen 3.8 27B in 10 Real Tests! (coming soon)
+## Scorecard: 58% Less Thinking? Swift 1.5 vs Qwen 3.8 27B in 10 Real Tests!
 
 In this video it won 1 of 10 tests (3 ties) against ukisai/Swift-1.5-Qwen3.8-27b-NVFP4.
 
@@ -29,7 +29,7 @@ In this video it won 1 of 10 tests (3 ties) against ukisai/Swift-1.5-Qwen3.8-27b
 - Rows marked Luke's call were tied on the number (or judged by eye) and decided by Luke.
 - Rube Goldberg: neither handed in a machine. Swift landed the ball on 6 of 30 tries before the 90 min cap; RadixArk/Qwen3.8-27B-NVFP4 landed it on 1 of 4, then its session ended after 38 min when a request after compaction asked for 32 tokens more than the 262,144-token window.
 
-How each test works, and why it won or lost: [in the video](https://www.youtube.com/@LukaszGawendaAI).
+How each test works, and why it won or lost: [in the video](https://www.youtube.com/watch?v=9WOEjWC9zYs).
 
 ## Scorecard: Which Qwen 3.8 Should You Run? 27B vs Flash Next vs Uncensored in 10 Real Tests!
 

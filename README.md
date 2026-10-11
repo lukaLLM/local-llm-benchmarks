@@ -2,6 +2,8 @@
 
 Every model I benchmark for [my YouTube channel](https://www.youtube.com/@LukaszGawendaAI), on one GPU at home: the exact Docker launch, so you can run it with one command, and its scorecard. How each test works, and why a model won or lost, is in the video.
 
+New benchmark out? Get it by email: [newsletter](https://lukaszgawendaai.kit.com/profile). Support the channel: [Patreon](https://www.patreon.com/LukaszGawendaAI).
+
 | Model | Video | Result | Config |
 |---|---|---|---|
 | ukisai/Swift-1.5-Qwen3.8-27b-NVFP4 | [58% Less Thinking? Swift 1.5 vs Qwen 3.8 27B in 10 Real Tests!](https://www.youtube.com/watch?v=9WOEjWC9zYs) | won 6 of 10 tests (3 ties) against RadixArk/Qwen3.8-27B-NVFP4, 24% fewer thinking tokens | [models/swift15-27b](models/swift15-27b) |
